@@ -1,4 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
@@ -7,11 +8,12 @@ import * as bcrypt from 'bcrypt'
 import { User } from '../users/user.entity'
 import { SignupDto } from './dtos/signup.dto'
 import { SigninDto } from './dtos/signin.dto'
-import { AuthToken } from './types/AuthToken'
+import { AuthToken } from './types/AuthToken.type'
 
 @Injectable()
 export class AuthService {
   constructor(
+    private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
     @InjectRepository(User) private readonly userRepository: Repository<User>
   ) {}
@@ -24,7 +26,7 @@ export class AuthService {
     userId: number,
     username: string
   ): Promise<AuthToken> {
-    const [accessToken, refreshToken] = await Promise.all([
+    const [accessToken, refreshToken]: [string, string] = await Promise.all([
       // Access Token
       await this.jwtService.signAsync(
         {
@@ -32,7 +34,7 @@ export class AuthService {
           username,
         },
         {
-          secret: 'at-secret',
+          secret: this.configService.get('ACCESS_TOKEN_SECRET'),
           expiresIn: '15m',
         }
       ),
@@ -43,7 +45,7 @@ export class AuthService {
           username,
         },
         {
-          secret: 'rt-secret',
+          secret: this.configService.get('REFRESH_TOKEN_SECRET'),
           expiresIn: '7d',
         }
       ),
@@ -55,13 +57,12 @@ export class AuthService {
     }
   }
 
-  private async _hashRefreshToken(userId: number, refreshToken: string) {
-    const rtHash = await this._hashData(refreshToken)
-
-    return await this.userRepository.update(
-      { id: userId },
-      { refreshToken: rtHash }
-    )
+  private async _hashRefreshToken(
+    userId: number,
+    refreshToken: string
+  ): Promise<void> {
+    const rtHash: string = await this._hashData(refreshToken)
+    await this.userRepository.update({ id: userId }, { refreshToken: rtHash })
   }
 
   async signUp(signupDto: SignupDto): Promise<User> {
@@ -83,7 +84,10 @@ export class AuthService {
     }
 
     // Compare password
-    const matched = await bcrypt.compare(signinDto.password, user.password)
+    const matched: boolean = await bcrypt.compare(
+      signinDto.password,
+      user.password
+    )
     // Return 401 if password is incorrect
     if (!matched) {
       throw new UnauthorizedException('Access Denied')
@@ -95,7 +99,18 @@ export class AuthService {
     return authToken
   }
 
-  async signOut() {}
+  async signOut(userId: number): Promise<boolean> {
+    await this.userRepository.update(
+      {
+        id: userId,
+      },
+      {
+        refreshToken: null,
+      }
+    )
+
+    return true
+  }
 
   async refreshToken() {}
 }

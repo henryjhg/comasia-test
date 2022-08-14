@@ -1,4 +1,13 @@
-import { Body, Controller, Post } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common'
+import { AuthGuard } from '@nestjs/passport'
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -7,11 +16,12 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger'
+import { Request } from 'express'
 
 import { User } from '../users/user.entity'
 import { SignupDto } from './dtos/signup.dto'
 import { SigninDto } from './dtos/signin.dto'
-import { AuthToken } from './types/AuthToken'
+import { AuthToken } from './types/AuthToken.type'
 import { AuthService } from './auth.service'
 
 @Controller('auth')
@@ -30,6 +40,7 @@ export class AuthController {
   }
 
   @Post('/signin')
+  @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ description: 'Login with correct credentials' })
   @ApiUnauthorizedResponse({
     description: 'Login with incorrect or invalid credentials',
@@ -39,14 +50,17 @@ export class AuthController {
     return await this.authService.signIn(signinDto)
   }
 
-  // TODO: Lock API
+  @UseGuards(AuthGuard('at-jwt'))
   @Post('/signout')
-  async signOut() {
-    await this.authService.signOut()
+  @HttpCode(HttpStatus.OK)
+  async signOut(@Req() req: Request): Promise<boolean> {
+    const user = req.user
+    return await this.authService.signOut(user['sub'])
   }
 
-  // TODO: Lock API
+  @UseGuards(AuthGuard('rt-jwt'))
   @Post('/refresh')
+  @HttpCode(HttpStatus.OK)
   async refresh() {
     await this.authService.refreshToken()
   }
