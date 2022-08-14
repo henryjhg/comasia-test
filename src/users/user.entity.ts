@@ -10,7 +10,9 @@ export class User {
   })
   username: string
 
-  @Column()
+  @Column({
+    select: false,
+  })
   password: string
 
   @Column({
@@ -24,4 +26,11 @@ export class User {
     nullable: true,
   })
   refreshToken: string
+
+  @Column({
+    name: 'created_at',
+    default: () => 'CURRENT_TIMESTAMP',
+    select: false,
+  })
+  createdAt: Date
 }
