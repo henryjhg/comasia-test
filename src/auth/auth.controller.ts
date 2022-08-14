@@ -4,10 +4,8 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  Req,
   UseGuards,
 } from '@nestjs/common'
-import { AuthGuard } from '@nestjs/passport'
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -16,8 +14,10 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger'
-import { Request } from 'express'
 
+import { CurrentUser } from '../_decorators/current-user.decorator'
+import { Public } from '../_decorators/public.decorator'
+import { RefreshTokenGuard } from '../_guards/refresh-token.guard'
 import { User } from '../users/user.entity'
 import { SignupDto } from './dtos/signup.dto'
 import { SigninDto } from './dtos/signin.dto'
@@ -30,6 +30,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('/signup')
+  @Public()
   @ApiCreatedResponse({ description: 'Successfully created a new user.' })
   @ApiBadRequestResponse({
     description: 'Creating a user with invalid inputs.',
@@ -41,6 +42,7 @@ export class AuthController {
 
   @Post('/signin')
   @HttpCode(HttpStatus.OK)
+  @Public()
   @ApiOkResponse({ description: 'Login with correct credentials' })
   @ApiUnauthorizedResponse({
     description: 'Login with incorrect or invalid credentials',
@@ -50,18 +52,24 @@ export class AuthController {
     return await this.authService.signIn(signinDto)
   }
 
-  @UseGuards(AuthGuard('at-jwt'))
   @Post('/signout')
   @HttpCode(HttpStatus.OK)
-  async signOut(@Req() req: Request): Promise<boolean> {
-    const user = req.user
-    return await this.authService.signOut(user['sub'])
+  @ApiOkResponse({ description: '' })
+  @ApiUnauthorizedResponse({ description: '' })
+  async signOut(@CurrentUser('sub') userId: number): Promise<boolean> {
+    return await this.authService.signOut(userId)
   }
 
-  @UseGuards(AuthGuard('rt-jwt'))
+  @UseGuards(RefreshTokenGuard)
   @Post('/refresh')
   @HttpCode(HttpStatus.OK)
-  async refresh() {
-    await this.authService.refreshToken()
+  @Public()
+  @ApiOkResponse({ description: '' })
+  @ApiUnauthorizedResponse({ description: '' })
+  async refresh(
+    @CurrentUser('sub') userId: number,
+    @CurrentUser('refresh_token') refreshToken: string
+  ): Promise<AuthToken> {
+    return await this.authService.refreshToken(userId, refreshToken)
   }
 }

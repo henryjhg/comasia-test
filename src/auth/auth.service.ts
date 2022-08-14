@@ -112,5 +112,20 @@ export class AuthService {
     return true
   }
 
-  async refreshToken() {}
+  async refreshToken(userId: number, refreshToken: string): Promise<AuthToken> {
+    const user: User = await this.userRepository.findOneBy({ id: userId })
+    if (!user) {
+      throw new UnauthorizedException('Access Denied')
+    }
+
+    const matched = await bcrypt.compare(refreshToken, user.refreshToken)
+    if (!matched) {
+      throw new UnauthorizedException('Access Denied')
+    }
+
+    const authToken: AuthToken = await this._getTokens(user.id, user.username)
+    await this._hashRefreshToken(user.id, authToken.refresh_token)
+
+    return authToken
+  }
 }

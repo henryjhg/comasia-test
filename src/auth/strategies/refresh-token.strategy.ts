@@ -19,7 +19,7 @@ export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'rt-jwt') {
 
     return {
       ...payload,
-      token,
+      refresh_token: token,
     }
   }
 }
