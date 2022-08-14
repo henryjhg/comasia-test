@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
 import { AuthModule } from './auth/auth.module'
+import { ProductsModule } from './products/products.module'
 import { AccessTokenGuard } from './_guards/access-token.guard'
 
 @Module({
@@ -24,6 +25,7 @@ import { AccessTokenGuard } from './_guards/access-token.guard'
       }),
     }),
     AuthModule,
+    ProductsModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: AccessTokenGuard }],
 })

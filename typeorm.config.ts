@@ -5,11 +5,13 @@ import { config } from 'dotenv'
 import { User } from './src/users/user.entity'
 import { Category } from './src/categories/category.entity'
 import { Brand } from './src/brands/brand.entity'
+import { Product } from './src/products/entities/product.entity'
 
 import { createUserTable1660407498957 } from './migrations/1660407498957-create_user_table'
 import { addCreatedAtColumnToUser1660447820181 } from './migrations/1660447820181-add_createdAt_column_to_user'
 import { createCategoryTable1660490028613 } from './migrations/1660490028613-create_category_table'
 import { createBrandTable1660491671327 } from './migrations/1660491671327-create_brand_table'
+import { createProductTable1660493679075 } from './migrations/1660493679075-create_product_table'
 
 config()
 const configService = new ConfigService()
@@ -21,11 +23,12 @@ export default new DataSource({
   username: configService.get('DB_USERNAME'),
   password: configService.get('DB_PASSWORD'),
   database: configService.get('DB_NAME'),
-  entities: [User, Category, Brand],
+  entities: [User, Category, Brand, Product],
   migrations: [
     createUserTable1660407498957,
     addCreatedAtColumnToUser1660447820181,
     createCategoryTable1660490028613,
     createBrandTable1660491671327,
+    createProductTable1660493679075,
   ],
 })
