@@ -8,12 +8,14 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger'
 
+import { User } from '../users/user.entity'
 import { SignupDto } from './dtos/signup.dto'
 import { SigninDto } from './dtos/signin.dto'
+import { AuthToken } from './types/AuthToken'
 import { AuthService } from './auth.service'
 
 @Controller('auth')
-@ApiTags('auth')
+@ApiTags('Auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -23,7 +25,7 @@ export class AuthController {
     description: 'Creating a user with invalid inputs.',
   })
   @ApiBody({ type: SignupDto })
-  async signUp(@Body() signupDto: SignupDto) {
+  async signUp(@Body() signupDto: SignupDto): Promise<User> {
     return await this.authService.signUp(signupDto)
   }
 
@@ -33,15 +35,17 @@ export class AuthController {
     description: 'Login with incorrect or invalid credentials',
   })
   @ApiBody({ type: SigninDto })
-  async signIn() {
-    await this.authService.signIn()
+  async signIn(@Body() signinDto: SigninDto): Promise<AuthToken> {
+    return await this.authService.signIn(signinDto)
   }
 
+  // TODO: Lock API
   @Post('/signout')
   async signOut() {
     await this.authService.signOut()
   }
 
+  // TODO: Lock API
   @Post('/refresh')
   async refresh() {
     await this.authService.refreshToken()
