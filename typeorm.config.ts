@@ -12,6 +12,7 @@ import { addCreatedAtColumnToUser1660447820181 } from './migrations/166044782018
 import { createCategoryTable1660490028613 } from './migrations/1660490028613-create_category_table'
 import { createBrandTable1660491671327 } from './migrations/1660491671327-create_brand_table'
 import { createProductTable1660493679075 } from './migrations/1660493679075-create_product_table'
+import { addFkConstraintsToProduct1660495233597 } from './migrations/1660495233597-add_fk_constraints_to_product'
 
 config()
 const configService = new ConfigService()
@@ -30,5 +31,6 @@ export default new DataSource({
     createCategoryTable1660490028613,
     createBrandTable1660491671327,
     createProductTable1660493679075,
+    addFkConstraintsToProduct1660495233597,
   ],
 })
