@@ -114,7 +114,7 @@ export class AuthService {
 
   async refreshToken(userId: number, refreshToken: string): Promise<AuthToken> {
     const user: User = await this.userRepository.findOneBy({ id: userId })
-    if (!user) {
+    if (!user || !user.refreshToken) {
       throw new UnauthorizedException('Access Denied')
     }
 
