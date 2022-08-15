@@ -3,12 +3,14 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm'
 
-import { User } from '../../users/user.entity'
-import { Brand } from '../../brands/brand.entity'
-import { Category } from '../../categories/category.entity'
+import { User } from '../../auth/entities/user.entity'
+import { Brand } from './brand.entity'
+import { Category } from './category.entity'
+import { ProductVariant } from './product-variant.entity'
 
 @Entity()
 export class Product {
@@ -37,4 +39,7 @@ export class Product {
 
   @ManyToOne(() => Category, (category: Category) => category.products)
   category: Category
+
+  @OneToMany(() => ProductVariant, (variant: ProductVariant) => variant.product)
+  variants: ProductVariant[]
 }

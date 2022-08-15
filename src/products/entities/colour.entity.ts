@@ -1,4 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
+
+import { ProductVariant } from './product-variant.entity'
 
 @Entity()
 export class Colour {
@@ -14,4 +16,7 @@ export class Colour {
     select: false,
   })
   createdAt: Date
+
+  @OneToMany(() => ProductVariant, variant => variant.colour)
+  variants: ProductVariant[]
 }

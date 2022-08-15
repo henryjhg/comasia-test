@@ -1,9 +1,9 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
 
-import { Product } from '../products/entities/product.entity'
+import { Product } from './product.entity'
 
 @Entity()
-export class Brand {
+export class Category {
   @PrimaryGeneratedColumn()
   id: number
 

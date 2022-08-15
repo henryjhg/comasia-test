@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config'
 import { JwtModule } from '@nestjs/jwt'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
-import { User } from '../users/user.entity'
+import { User } from './entities/user.entity'
 import { AccessTokenStrategy } from './strategies/access-token.strategy'
 import { RefreshTokenStrategy } from './strategies/refresh-token.strategy'
 import { AuthController } from './auth.controller'
