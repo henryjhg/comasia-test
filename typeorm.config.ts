@@ -42,4 +42,7 @@ export default new DataSource({
     createCapacityTable1660521837721,
     addRelationsToProductVariants1660523266540,
   ],
+  ssl: {
+    rejectUnauthorized: false,
+  },
 })

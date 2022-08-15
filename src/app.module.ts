@@ -22,6 +22,9 @@ import { AccessTokenGuard } from './_guards/access-token.guard'
         database: configService.get('DB_NAME'),
         entities: [],
         autoLoadEntities: true,
+        ssl: {
+          rejectUnauthorized: false,
+        },
       }),
     }),
     AuthModule,
